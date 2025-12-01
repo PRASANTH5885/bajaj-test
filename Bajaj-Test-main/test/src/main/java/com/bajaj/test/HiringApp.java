@@ -23,9 +23,9 @@ public class HiringApp implements CommandLineRunner {
 
         String requestJson = """
             {
-              "name": "Sadu Mohan Naidu",
-              "regNo": "22BCE1508",
-              "email": "mohannaidu0313@gmail.com"
+              "name": "beedam prasanth sai",
+              "regNo": "22BCE1767",
+              "email": "prasanthbeedam@gmail.com"
             }
         """;
 
@@ -45,7 +45,44 @@ public class HiringApp implements CommandLineRunner {
         String finalQuery;
 
         if (lastTwo % 2 == 1) {
-            finalQuery = "SELECT ... FROM ... WHERE ...;";
+            finalQuery = "SELECT \n" +
+                    "    d.DEPARTMENT_NAME,\n" +
+                    "    t.SALARY,\n" +
+                    "    CONCAT(e.FIRST_NAME, ' ', e.LAST_NAME) AS EMPLOYEE_NAME,\n" +
+                    "    FLOOR(DATEDIFF(CURDATE(), e.DOB) / 365) AS AGE\n" +
+                    "FROM (\n" +
+                    "    SELECT \n" +
+                    "        e.EMP_ID,\n" +
+                    "        e.DEPARTMENT,\n" +
+                    "        SUM(p.AMOUNT) AS SALARY\n" +
+                    "    FROM EMPLOYEE e\n" +
+                    "    JOIN PAYMENTS p \n" +
+                    "        ON e.EMP_ID = p.EMP_ID\n" +
+                    "    WHERE DAY(p.PAYMENT_TIME) != 1\n" +
+                    "    GROUP BY e.EMP_ID, e.DEPARTMENT\n" +
+                    ") t\n" +
+                    "JOIN (\n" +
+                    "    SELECT \n" +
+                    "        DEPARTMENT,\n" +
+                    "        MAX(SALARY) AS MAX_SAL\n" +
+                    "    FROM (\n" +
+                    "        SELECT \n" +
+                    "            e.EMP_ID,\n" +
+                    "            e.DEPARTMENT,\n" +
+                    "            SUM(p.AMOUNT) AS SALARY\n" +
+                    "        FROM EMPLOYEE e\n" +
+                    "        JOIN PAYMENTS p \n" +
+                    "            ON e.EMP_ID = p.EMP_ID\n" +
+                    "        WHERE DAY(p.PAYMENT_TIME) != 1\n" +
+                    "        GROUP BY e.EMP_ID, e.DEPARTMENT\n" +
+                    "    ) x\n" +
+                    "    GROUP BY DEPARTMENT\n" +
+                    ") m \n" +
+                    "    ON t.DEPARTMENT = m.DEPARTMENT \n" +
+                    "   AND t.SALARY = m.MAX_SAL\n" +
+                    "JOIN EMPLOYEE e ON e.EMP_ID = t.EMP_ID\n" +
+                    "JOIN DEPARTMENT d ON d.DEPARTMENT_ID = t.DEPARTMENT\n" +
+                    "ORDER BY d.DEPARTMENT_NAME;";
         } else {
             finalQuery = "SELECT \n" +
                     "    e1.EMP_ID,\n" +
